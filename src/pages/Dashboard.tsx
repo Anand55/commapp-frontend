@@ -10,6 +10,7 @@ interface Student {
 
 const Dashboard = () => {
   const [students, setStudents] = useState<Student[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,12 +22,14 @@ const Dashboard = () => {
       }
 
       try {
-        const response = await axios.get<Student[]>("http://127.0.0.1:8000/students", {
-          headers: { Authorization: `Bearer ${token}` },
+        const response = await axios.get("http://127.0.0.1:8000/students/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
         setStudents(response.data);
-      } catch (error) {
-        alert("Unauthorized");
+      } catch (err: any) {
+        setError("Failed to fetch students. Please login again.");
         navigate("/login");
       }
     };
@@ -36,11 +39,12 @@ const Dashboard = () => {
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Students</h2>
+      <h2 className="text-2xl font-bold mb-4">Student Dashboard</h2>
+      {error && <p className="text-red-500 mb-4">{error}</p>}
       <ul>
         {students.map((student) => (
-          <li key={student.id} className="border p-2 my-2">
-            {student.name} - {student.class_name}
+          <li key={student.id} className="border p-2 my-2 rounded shadow">
+            <strong>{student.name}</strong> — Class: {student.class_name}
           </li>
         ))}
       </ul>
